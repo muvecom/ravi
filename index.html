@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Propostas - Sistema Automatizado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2e5bff;
+            --secondary-color: #00c48c;
+            --accent-color: #ff6b6b;
+            --dark-color: #2e384d;
+            --light-color: #f8f9fc;
+            --gray-color: #8c94a8;
+            --border-radius: 12px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #5a7dff);
+            color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .requirements {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .requirements i {
+            color: var(--secondary-color);
+        }
+
+        /* Main Content */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            color: var(--dark-color);
+        }
+
+        .card-title i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .card-title h2 {
+            font-size: 1.5rem;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--gray-color);
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(46, 91, 255, 0.03);
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-note {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .upload-note strong {
+            color: var(--accent-color);
+        }
+
+        .file-info {
+            display: none;
+            background-color: #f0f4ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-info.show {
+            display: flex;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .file-details h4 {
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .file-details p {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: #254de6;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success:hover {
+            background-color: #00b37a;
+        }
+
+        .btn:disabled {
+            background-color: var(--gray-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Process Flow */
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .step-icon {
+            background-color: #f0f4ff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .step.active .step-icon {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-icon {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .step-content h4 {
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .step-content p {
+            font-size: 0.95rem;
+            color: var(--gray-color);
+        }
+
+        .step.active .step-content h4 {
+            color: var(--primary-color);
+        }
+
+        /* Activity Log */
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.received {
+            background-color: rgba(46, 91, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .activity-icon.processing {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .activity-icon.completed {
+            background-color: rgba(0, 196, 140, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .activity-details h4 {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .activity-details p {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            margin-top: 5px;
+        }
+
+        /* Webhook Data */
+        .webhook-data {
+            margin-top: 30px;
+        }
+
+        .data-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray-color);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: #f8f9fc;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .json-view {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: var(--dark-color);
+        }
+
+        .json-key {
+            color: #d32f2f;
+        }
+
+        .json-value {
+            color: #0d47a1;
+        }
+
+        .json-string {
+            color: #2e7d32;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .error-message {
+            background-color: rgba(239, 71, 111, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            .logo h1 {
+                font-size: 1.7rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .step {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-excel"></i>
+                <div>
+                    <h1>Gerador de Propostas Automatizado</h1>
+                    <p class="tagline">Sistema que processa arquivos XLSX enviados via WhatsApp e retorna propostas preenchidas</p>
+                </div>
+            </div>
+            
+            <div class="requirements">
+                <i class="fas fa-info-circle"></i>
+                <p>Apenas arquivos <strong>.xlsx</strong> são aceitos. Envie um modelo de proposta não preenchido e receba o documento editado com os valores dos produtos solicitados.</p>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-upload"></i>
+                    <h2>Enviar Arquivo para Processamento</h2>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <p class="upload-text">Arraste e solte seu arquivo XLSX aqui</p>
+                    <p class="upload-note">ou <strong>clique para selecionar</strong> um arquivo do computador</p>
+                    <p class="upload-note"><strong>Apenas arquivos .xlsx são aceitos</strong></p>
+                </div>
+                
+                <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
+                
+                <div class="file-info" id="fileInfo">
+                    <div class="file-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <div class="file-details">
+                        <h4 id="fileName">Arquivo.xlsx</h4>
+                        <p id="fileSize">Tamanho: 0 KB</p>
+                    </div>
+                </div>
+                
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">Por favor, selecione um arquivo no formato .xlsx</span>
+                </div>
+                
+                <button class="btn" id="processBtn" disabled>
+                    <i class="fas fa-cogs"></i>
+                    Processar Proposta
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-sitemap"></i>
+                    <h2>Fluxo de Processamento</h2>
+                </div>
+                
+                <div class="flow-steps">
+                    <div class="step completed" id="step1">
+                        <div class="step-icon">
+                            <i class="fas fa-comment-medical"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Recebimento via WhatsApp</h4>
+                            <p>Arquivo XLSX é enviado por mensagem no WhatsApp</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step active" id="step2">
+                        <div class="step-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Verificação do Arquivo</h4>
+                            <p>Sistema valida se o arquivo é no formato .xlsx correto</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step" id="step3">
+                        <div class="step-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Processamento da Proposta</h4>
+                            <p>Preenchimento automático dos valores dos produtos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step" id="step4">
+                        <div class="step-icon">
+                            <i class="fas fa-reply"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Resposta ao Cliente</h4>
+                            <p>Envio do documento editado de volta pelo WhatsApp</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p><span class="status-indicator"></span> <strong>Status:</strong> <span id="statusText">Aguardando arquivo XLSX</span></p>
+                </div>
+            </div>
+            
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-title">
+                    <i class="fas fa-history"></i>
+                    <h2>Registro de Atividades</h2>
+                </div>
+                
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-icon received">
+                            <i class="fas fa-comment-medical"></i>
+                        </div>
+                        <div class="activity-details">
+                            <h4>Sistema Inicializado</h4>
+                            <p>Gerador de Propostas aguardando arquivos XLSX</p>
+                            <div class="activity-time">Agora mesmo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon completed">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div class="activity-details">
+                            <h4>Webhook Configurado</h4>
+                            <p>Conexão estabelecida com a API de WhatsApp</p>
+                            <div class="activity-time">Hoje, 09:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="webhook-data">
+                    <div class="card-title">
+                        <i class="fas fa-code"></i>
+                        <h2>Dados do Webhook Recebido</h2>
+                    </div>
+                    
+                    <div class="data-tabs">
+                        <button class="tab-btn active" data-tab="webhook">Dados do Webhook</button>
+                        <button class="tab-btn" data-tab="session">Informações da Sessão</button>
+                        <button class="tab-btn" data-tab="file">Detalhes do Arquivo</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="webhook-tab">
+                        <div class="json-view" id="webhookData">
+{
+  "webhookId": "04a526a4-f33b-4dd4-88f8-ec95784f530a",
+  "method": "POST",
+  "sessionId": "abb08639-b072-4c3f-9227-ec3985b28b50",
+  "lastMessage": {
+    "type": "DOCUMENT",
+    "text": "me gera uma proposta para esse cliente",
+    "file": {
+      "extension": ".xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "name": "PLANILHA_ORÇAMENTÁRIA_INTENSIDADE_SHOP_MILLENIUM_RJ_RAVI_ENGENHARIA_R05.xlsx",
+      "size": 356105
+    }
+  }
+}
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="session-tab">
+                        <div class="json-view">
+{
+  "session": {
+    "id": "abb08639-b072-4c3f-9227-ec3985b28b50",
+    "number": "2025110500004",
+    "createdAt": "2025-11-05T17:21:31.633696Z"
+  },
+  "contact": {
+    "name": "Eduardo",
+    "phonenumber": "+55|22997096756",
+    "display-phonenumber": "(22) 99709-6756"
+  },
+  "channel": {
+    "platform": "WhatsApp",
+    "displayName": "Instância d3ad76"
+  }
+}
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="file-tab">
+                        <div class="json-view">
+{
+  "file": {
+    "name": "PLANILHA_ORÇAMENTÁRIA_INTENSIDADE_SHOP_MILLENIUM_RJ_RAVI_ENGENHARIA_R05.xlsx",
+    "extension": ".xlsx",
+    "size": "356 KB",
+    "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "publicUrl": "https://cdn.flw.chat/upload/.../planilha_orçamentária_intensidade_shop_millenium_rj_ravi_engenharia_r05.xlsx"
+  },
+  "processing": {
+    "endpoint": "http://209.38.79.93:8000/editar",
+    "parameters": {
+      "url": "[URL_DO_ARQUIVO_XLSX]"
+    }
+  }
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Gerador de Propostas Automatizado &copy; 2023 - Sistema integrado com WhatsApp Business API</p>
+            <p style="font-size: 0.8rem; margin-top: 5px;">Apenas arquivos .xlsx são aceitos para processamento</p>
+        </footer>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const processBtn = document.getElementById('processBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const activityList = document.getElementById('activityList');
+        const statusText = document.getElementById('statusText');
+        
+        // Elementos dos passos do processo
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const step4 = document.getElementById('step4');
+        
+        // Elementos das abas
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Estado do aplicativo
+        let currentFile = null;
+        let isProcessing = false;
+        
+        // Configurar eventos de upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+        
+        // Processar arquivo selecionado
+        function handleFileSelection(file) {
+            // Verificar se é um arquivo XLSX
+            const isValidXlsx = file.name.toLowerCase().endsWith('.xlsx');
+            
+            if (!isValidXlsx) {
+                showError('Apenas arquivos .xlsx são aceitos. Por favor, selecione um arquivo no formato correto.');
+                resetFileSelection();
+                return;
+            }
+            
+            currentFile = file;
+            
+            // Atualizar informações do arquivo
+            fileName.textContent = file.name;
+            fileSize.textContent = `Tamanho: ${formatFileSize(file.size)}`;
+            fileInfo.classList.add('show');
+            
+            // Habilitar botão de processamento
+            processBtn.disabled = false;
+            
+            // Esconder mensagem de erro se existir
+            errorMessage.classList.remove('show');
+            
+            // Atualizar status
+            statusText.textContent = 'Arquivo XLSX carregado. Pronto para processamento.';
+            
+            // Adicionar ao registro de atividades
+            addActivity('Arquivo carregado', `"${file.name}" (${formatFileSize(file.size)}) carregado para processamento`, 'received');
+            
+            // Atualizar passo atual
+            updateStep(2);
+        }
+        
+        // Processar arquivo
+        processBtn.addEventListener('click', () => {
+            if (!currentFile || isProcessing) return;
+            
+            isProcessing = true;
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            statusText.textContent = 'Processando proposta XLSX...';
+            
+            // Atualizar passos do processo
+            updateStep(3);
+            
+            // Simular processamento (em um caso real, isso seria uma chamada à API)
+            addActivity('Início do processamento', 'Preenchendo valores dos produtos na proposta XLSX', 'processing');
+            
+            setTimeout(() => {
+                // Simular conclusão do processamento
+                completeProcessing();
+            }, 3000);
+        });
+        
+        // Completar processamento
+        function completeProcessing() {
+            isProcessing = false;
+            
+            // Atualizar passos do processo
+            updateStep(4);
+            
+            // Atualizar status
+            statusText.textContent = 'Proposta processada com sucesso! Documento enviado de volta ao cliente.';
+            
+            // Adicionar ao registro de atividades
+            addActivity('Proposta processada', 'Documento XLSX editado e enviado de volta via WhatsApp', 'completed');
+            
+            // Atualizar botão
+            processBtn.innerHTML = '<i class="fas fa-check"></i> Processamento Concluído';
+            processBtn.classList.add('btn-success');
+            
+            // Mostrar sucesso
+            setTimeout(() => {
+                alert('Processamento concluído! A proposta foi preenchida com os valores dos produtos e enviada de volta ao cliente via WhatsApp.');
+            }, 500);
+        }
+        
+        // Atualizar passo do processo
+        function updateStep(stepNumber) {
+            // Resetar todos os passos
+            [step1, step2, step3, step4].forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            
+            // Atualizar conforme o passo atual
+            for (let i = 1; i <= 4; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                
+                if (i < stepNumber) {
+                    stepElement.classList.add('completed');
+                } else if (i === stepNumber) {
+                    stepElement.classList.add('active');
+                }
+            }
+        }
+        
+        // Adicionar atividade ao registro
+        function addActivity(title, description, type) {
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            activityItem.innerHTML = `
+                <div class="activity-icon ${type}">
+                    <i class="fas fa-${type === 'received' ? 'comment-medical' : type === 'processing' ? 'cogs' : 'check'}"></i>
+                </div>
+                <div class="activity-details">
+                    <h4>${title}</h4>
+                    <p>${description}</p>
+                    <div class="activity-time">${timeString}</div>
+                </div>
+            `;
+            
+            activityList.insertBefore(activityItem, activityList.firstChild);
+        }
+        
+        // Mostrar erro
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('show');
+            statusText.textContent = 'Erro: ' + message;
+        }
+        
+        // Resetar seleção de arquivo
+        function resetFileSelection() {
+            currentFile = null;
+            fileInfo.classList.remove('show');
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Proposta';
+            processBtn.classList.remove('btn-success');
+            fileInput.value = '';
+            updateStep(2);
+        }
+        
+        // Formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Configurar abas
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                
+                // Remover classe ativa de todas as abas
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Adicionar classe ativa à aba clicada
+                btn.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Inicializar interface
+        updateStep(2);
+        
+        // Adicionar exemplo de atividade para demonstração
+        setTimeout(() => {
+            addActivity('Webhook recebido', 'Documento XLSX recebido de Eduardo via WhatsApp', 'received');
+        }, 1000);
+        
+        setTimeout(() => {
+            addActivity('Verificação concluída', 'Arquivo XLSX validado com sucesso', 'completed');
+        }, 2000);
+    </script>
+</body>
+</html>
