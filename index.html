@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Propostas - Sistema Automatizado</title>
+    <title>Editor RAVI - Processamento de Planilhas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -74,14 +74,12 @@
             border-radius: 8px;
             padding: 12px 15px;
             margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             font-size: 0.95rem;
         }
 
         .requirements i {
             color: var(--secondary-color);
+            margin-right: 8px;
         }
 
         /* Main Content */
@@ -222,10 +220,21 @@
             background-color: #00b37a;
         }
 
+        .btn-download {
+            background-color: var(--secondary-color);
+            margin-left: 10px;
+        }
+
         .btn:disabled {
             background-color: var(--gray-color);
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         /* Process Flow */
@@ -336,63 +345,105 @@
             margin-top: 5px;
         }
 
-        /* Webhook Data */
-        .webhook-data {
-            margin-top: 30px;
-        }
-
-        .data-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--gray-color);
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--primary-color);
-        }
-
-        .tab-content {
+        /* Results Panel */
+        .results-panel {
             display: none;
-            background-color: #f8f9fc;
-            border-radius: 8px;
+            margin-top: 20px;
             padding: 20px;
-            max-height: 300px;
-            overflow-y: auto;
+            background-color: #f0f8ff;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
         }
 
-        .tab-content.active {
+        .results-panel.show {
             display: block;
         }
 
-        .json-view {
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            white-space: pre-wrap;
+        .results-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
             color: var(--dark-color);
         }
 
-        .json-key {
-            color: #d32f2f;
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .json-value {
-            color: #0d47a1;
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
 
-        .json-string {
-            color: #2e7d32;
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--gray-color);
+            margin-right: 8px;
+        }
+
+        .status-indicator.active {
+            background-color: var(--secondary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: rgba(239, 71, 111, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .success-message {
+            background-color: rgba(0, 196, 140, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-message.show {
+            display: flex;
         }
 
         /* Footer */
@@ -403,35 +454,6 @@
             color: var(--gray-color);
             font-size: 0.9rem;
             border-top: 1px solid #eee;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .error-message {
-            background-color: rgba(239, 71, 111, 0.1);
-            border-left: 4px solid var(--accent-color);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
         }
 
         /* Responsive */
@@ -452,10 +474,13 @@
                 padding: 20px;
             }
             
-            .step {
+            .btn-container {
                 flex-direction: column;
-                align-items: center;
-                text-align: center;
+            }
+            
+            .btn-download {
+                margin-left: 0;
+                margin-top: 10px;
             }
         }
     </style>
@@ -466,14 +491,14 @@
             <div class="logo">
                 <i class="fas fa-file-excel"></i>
                 <div>
-                    <h1>Gerador de Propostas Automatizado</h1>
-                    <p class="tagline">Sistema que processa arquivos XLSX enviados via WhatsApp e retorna propostas preenchidas</p>
+                    <h1>Editor RAVI - Processamento de Planilhas</h1>
+                    <p class="tagline">Preenchimento automático de valores RAVI em planilhas XLSX</p>
                 </div>
             </div>
             
             <div class="requirements">
                 <i class="fas fa-info-circle"></i>
-                <p>Apenas arquivos <strong>.xlsx</strong> são aceitos. Envie um modelo de proposta não preenchido e receba o documento editado com os valores dos produtos solicitados.</p>
+                <p>Apenas arquivos <strong>.xlsx</strong> são aceitos. O sistema busca automaticamente códigos RAVI e preenche os valores correspondentes na planilha.</p>
             </div>
         </header>
 
@@ -481,7 +506,7 @@
             <div class="card">
                 <div class="card-title">
                     <i class="fas fa-upload"></i>
-                    <h2>Enviar Arquivo para Processamento</h2>
+                    <h2>Processar Planilha</h2>
                 </div>
                 
                 <div class="upload-area" id="uploadArea">
@@ -510,62 +535,75 @@
                     <span id="errorText">Por favor, selecione um arquivo no formato .xlsx</span>
                 </div>
                 
-                <button class="btn" id="processBtn" disabled>
-                    <i class="fas fa-cogs"></i>
-                    Processar Proposta
-                </button>
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText">Processamento concluído com sucesso!</span>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn" id="processBtn" disabled>
+                        <i class="fas fa-cogs"></i>
+                        Processar Planilha
+                    </button>
+                    
+                    <button class="btn btn-download" id="downloadBtn" disabled>
+                        <i class="fas fa-download"></i>
+                        Baixar Resultado
+                    </button>
+                </div>
+                
+                <div class="results-panel" id="resultsPanel">
+                    <div class="results-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>Resultados do Processamento</h3>
+                    </div>
+                    
+                    <div class="results-stats" id="resultsStats">
+                        <!-- As estatísticas serão inseridas aqui via JavaScript -->
+                    </div>
+                </div>
             </div>
             
             <div class="card">
                 <div class="card-title">
                     <i class="fas fa-sitemap"></i>
-                    <h2>Fluxo de Processamento</h2>
+                    <h2>Status do Processamento</h2>
                 </div>
                 
                 <div class="flow-steps">
-                    <div class="step completed" id="step1">
+                    <div class="step active" id="step1">
                         <div class="step-icon">
-                            <i class="fas fa-comment-medical"></i>
+                            <i class="fas fa-upload"></i>
                         </div>
                         <div class="step-content">
-                            <h4>Recebimento via WhatsApp</h4>
-                            <p>Arquivo XLSX é enviado por mensagem no WhatsApp</p>
+                            <h4>Seleção do Arquivo</h4>
+                            <p>Carregue sua planilha XLSX para processamento</p>
                         </div>
                     </div>
                     
-                    <div class="step active" id="step2">
+                    <div class="step" id="step2">
                         <div class="step-icon">
-                            <i class="fas fa-file-excel"></i>
+                            <i class="fas fa-cogs"></i>
                         </div>
                         <div class="step-content">
-                            <h4>Verificação do Arquivo</h4>
-                            <p>Sistema valida se o arquivo é no formato .xlsx correto</p>
+                            <h4>Processamento</h4>
+                            <p>Busca e substituição dos códigos RAVI</p>
                         </div>
                     </div>
                     
                     <div class="step" id="step3">
                         <div class="step-icon">
-                            <i class="fas fa-cogs"></i>
+                            <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="step-content">
-                            <h4>Processamento da Proposta</h4>
-                            <p>Preenchimento automático dos valores dos produtos</p>
-                        </div>
-                    </div>
-                    
-                    <div class="step" id="step4">
-                        <div class="step-icon">
-                            <i class="fas fa-reply"></i>
-                        </div>
-                        <div class="step-content">
-                            <h4>Resposta ao Cliente</h4>
-                            <p>Envio do documento editado de volta pelo WhatsApp</p>
+                            <h4>Concluído</h4>
+                            <p>Download da planilha editada disponível</p>
                         </div>
                     </div>
                 </div>
                 
                 <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
-                    <p><span class="status-indicator"></span> <strong>Status:</strong> <span id="statusText">Aguardando arquivo XLSX</span></p>
+                    <p><span class="status-indicator" id="statusIndicator"></span> <strong>Status:</strong> <span id="statusText">Aguardando arquivo XLSX</span></p>
                 </div>
             </div>
             
@@ -577,100 +615,13 @@
                 
                 <div class="activity-list" id="activityList">
                     <div class="activity-item">
-                        <div class="activity-icon received">
-                            <i class="fas fa-comment-medical"></i>
-                        </div>
-                        <div class="activity-details">
-                            <h4>Sistema Inicializado</h4>
-                            <p>Gerador de Propostas aguardando arquivos XLSX</p>
-                            <div class="activity-time">Agora mesmo</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
                         <div class="activity-icon completed">
                             <i class="fas fa-plug"></i>
                         </div>
                         <div class="activity-details">
-                            <h4>Webhook Configurado</h4>
-                            <p>Conexão estabelecida com a API de WhatsApp</p>
-                            <div class="activity-time">Hoje, 09:30</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="webhook-data">
-                    <div class="card-title">
-                        <i class="fas fa-code"></i>
-                        <h2>Dados do Webhook Recebido</h2>
-                    </div>
-                    
-                    <div class="data-tabs">
-                        <button class="tab-btn active" data-tab="webhook">Dados do Webhook</button>
-                        <button class="tab-btn" data-tab="session">Informações da Sessão</button>
-                        <button class="tab-btn" data-tab="file">Detalhes do Arquivo</button>
-                    </div>
-                    
-                    <div class="tab-content active" id="webhook-tab">
-                        <div class="json-view" id="webhookData">
-{
-  "webhookId": "04a526a4-f33b-4dd4-88f8-ec95784f530a",
-  "method": "POST",
-  "sessionId": "abb08639-b072-4c3f-9227-ec3985b28b50",
-  "lastMessage": {
-    "type": "DOCUMENT",
-    "text": "me gera uma proposta para esse cliente",
-    "file": {
-      "extension": ".xlsx",
-      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "name": "PLANILHA_ORÇAMENTÁRIA_INTENSIDADE_SHOP_MILLENIUM_RJ_RAVI_ENGENHARIA_R05.xlsx",
-      "size": 356105
-    }
-  }
-}
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="session-tab">
-                        <div class="json-view">
-{
-  "session": {
-    "id": "abb08639-b072-4c3f-9227-ec3985b28b50",
-    "number": "2025110500004",
-    "createdAt": "2025-11-05T17:21:31.633696Z"
-  },
-  "contact": {
-    "name": "Eduardo",
-    "phonenumber": "+55|22997096756",
-    "display-phonenumber": "(22) 99709-6756"
-  },
-  "channel": {
-    "platform": "WhatsApp",
-    "displayName": "Instância d3ad76"
-  }
-}
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="file-tab">
-                        <div class="json-view">
-{
-  "file": {
-    "name": "PLANILHA_ORÇAMENTÁRIA_INTENSIDADE_SHOP_MILLENIUM_RJ_RAVI_ENGENHARIA_R05.xlsx",
-    "extension": ".xlsx",
-    "size": "356 KB",
-    "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "publicUrl": "https://cdn.flw.chat/upload/.../planilha_orçamentária_intensidade_shop_millenium_rj_ravi_engenharia_r05.xlsx"
-  },
-  "processing": {
-    "endpoint": "http://209.38.79.93:8000/editar",
-    "parameters": {
-      "url": "[URL_DO_ARQUIVO_XLSX]"
-    }
-  }
-}
+                            <h4>Sistema Conectado</h4>
+                            <p>Interface conectada à API RAVI em 209.38.79.93</p>
+                            <div class="activity-time">Sistema pronto</div>
                         </div>
                     </div>
                 </div>
@@ -678,8 +629,8 @@
         </main>
         
         <footer>
-            <p>Gerador de Propostas Automatizado &copy; 2023 - Sistema integrado com WhatsApp Business API</p>
-            <p style="font-size: 0.8rem; margin-top: 5px;">Apenas arquivos .xlsx são aceitos para processamento</p>
+            <p>Editor RAVI &copy; 2023 - Processamento automático de planilhas XLSX</p>
+            <p style="font-size: 0.8rem; margin-top: 5px;">API: 209.38.79.93:8000 | Apenas arquivos .xlsx são aceitos</p>
         </footer>
     </div>
 
@@ -691,24 +642,27 @@
         const fileName = document.getElementById('fileName');
         const fileSize = document.getElementById('fileSize');
         const processBtn = document.getElementById('processBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
         const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
         const errorText = document.getElementById('errorText');
+        const successText = document.getElementById('successText');
         const activityList = document.getElementById('activityList');
         const statusText = document.getElementById('statusText');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const resultsPanel = document.getElementById('resultsPanel');
+        const resultsStats = document.getElementById('resultsStats');
         
         // Elementos dos passos do processo
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
         const step3 = document.getElementById('step3');
-        const step4 = document.getElementById('step4');
-        
-        // Elementos das abas
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
         
         // Estado do aplicativo
         let currentFile = null;
         let isProcessing = false;
+        let downloadUrl = null;
+        let processingStats = null;
         
         // Configurar eventos de upload
         uploadArea.addEventListener('click', () => {
@@ -760,72 +714,164 @@
             // Habilitar botão de processamento
             processBtn.disabled = false;
             
+            // Desabilitar botão de download e resetar resultados
+            downloadBtn.disabled = true;
+            resultsPanel.classList.remove('show');
+            successMessage.classList.remove('show');
+            
             // Esconder mensagem de erro se existir
             errorMessage.classList.remove('show');
             
             // Atualizar status
             statusText.textContent = 'Arquivo XLSX carregado. Pronto para processamento.';
+            statusIndicator.className = 'status-indicator active';
             
             // Adicionar ao registro de atividades
             addActivity('Arquivo carregado', `"${file.name}" (${formatFileSize(file.size)}) carregado para processamento`, 'received');
             
             // Atualizar passo atual
-            updateStep(2);
+            updateStep(1);
         }
         
         // Processar arquivo
-        processBtn.addEventListener('click', () => {
+        processBtn.addEventListener('click', async () => {
             if (!currentFile || isProcessing) return;
             
             isProcessing = true;
             processBtn.disabled = true;
             processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-            statusText.textContent = 'Processando proposta XLSX...';
+            statusText.textContent = 'Processando planilha XLSX...';
+            statusIndicator.className = 'status-indicator active';
+            
+            // Atualizar passos do processo
+            updateStep(2);
+            
+            // Adicionar ao registro de atividades
+            addActivity('Início do processamento', 'Enviando arquivo para a API RAVI...', 'processing');
+            
+            try {
+                // Criar FormData para enviar o arquivo
+                const formData = new FormData();
+                formData.append('file', currentFile);
+                
+                // Endpoint da API RAVI
+                const apiUrl = 'http://209.38.79.93:8000/editar-xlsx';
+                
+                // Fazer requisição para a API
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+                }
+                
+                // Processar a resposta
+                const blob = await response.blob();
+                
+                // Obter estatísticas dos headers
+                const stats = {
+                    totalLinhas: response.headers.get('X-Stats-Total-Linhas') || 'N/A',
+                    linhasModificadas: response.headers.get('X-Stats-Linhas-Modificadas') || 'N/A',
+                    codigosEncontrados: response.headers.get('X-Stats-Codigos-Encontrados') || 'N/A'
+                };
+                
+                // Criar URL para download
+                downloadUrl = URL.createObjectURL(blob);
+                processingStats = stats;
+                
+                // Completar processamento
+                completeProcessing(stats);
+                
+            } catch (error) {
+                // Tratar erro
+                console.error('Erro ao processar arquivo:', error);
+                showError(`Falha no processamento: ${error.message}`);
+                resetProcessingState();
+                
+                // Adicionar erro ao registro de atividades
+                addActivity('Erro no processamento', `Falha ao processar o arquivo: ${error.message}`, 'received');
+            }
+        });
+        
+        // Completar processamento
+        function completeProcessing(stats) {
+            isProcessing = false;
             
             // Atualizar passos do processo
             updateStep(3);
             
-            // Simular processamento (em um caso real, isso seria uma chamada à API)
-            addActivity('Início do processamento', 'Preenchendo valores dos produtos na proposta XLSX', 'processing');
-            
-            setTimeout(() => {
-                // Simular conclusão do processamento
-                completeProcessing();
-            }, 3000);
-        });
-        
-        // Completar processamento
-        function completeProcessing() {
-            isProcessing = false;
-            
-            // Atualizar passos do processo
-            updateStep(4);
-            
             // Atualizar status
-            statusText.textContent = 'Proposta processada com sucesso! Documento enviado de volta ao cliente.';
+            statusText.textContent = 'Planilha processada com sucesso!';
+            statusIndicator.className = 'status-indicator active';
             
-            // Adicionar ao registro de atividades
-            addActivity('Proposta processada', 'Documento XLSX editado e enviado de volta via WhatsApp', 'completed');
-            
-            // Atualizar botão
+            // Atualizar botão de processamento
             processBtn.innerHTML = '<i class="fas fa-check"></i> Processamento Concluído';
             processBtn.classList.add('btn-success');
             
-            // Mostrar sucesso
-            setTimeout(() => {
-                alert('Processamento concluído! A proposta foi preenchida com os valores dos produtos e enviada de volta ao cliente via WhatsApp.');
-            }, 500);
+            // Habilitar botão de download
+            downloadBtn.disabled = false;
+            
+            // Mostrar painel de resultados
+            showResultsPanel(stats);
+            
+            // Mostrar mensagem de sucesso
+            successText.textContent = `Processamento concluído! ${stats.linhasModificadas} valores RAVI foram atualizados.`;
+            successMessage.classList.add('show');
+            
+            // Adicionar ao registro de atividades
+            addActivity('Processamento concluído', `${stats.linhasModificadas} valores RAVI atualizados na planilha`, 'completed');
         }
+        
+        // Mostrar painel de resultados
+        function showResultsPanel(stats) {
+            resultsStats.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.totalLinhas}</div>
+                    <div class="stat-label">Linhas Totais</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.linhasModificadas}</div>
+                    <div class="stat-label">Linhas Modificadas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.codigosEncontrados}</div>
+                    <div class="stat-label">Códigos Encontrados</div>
+                </div>
+            `;
+            
+            resultsPanel.classList.add('show');
+        }
+        
+        // Download do arquivo processado
+        downloadBtn.addEventListener('click', () => {
+            if (!downloadUrl) return;
+            
+            // Criar elemento de download
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `editado_${currentFile.name}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Adicionar ao registro de atividades
+            addActivity('Download realizado', `Arquivo "${currentFile.name}" baixado com sucesso`, 'completed');
+            
+            // Mostrar mensagem
+            alert('Download iniciado! O arquivo processado está sendo baixado.');
+        });
         
         // Atualizar passo do processo
         function updateStep(stepNumber) {
             // Resetar todos os passos
-            [step1, step2, step3, step4].forEach(step => {
+            [step1, step2, step3].forEach(step => {
                 step.classList.remove('active', 'completed');
             });
             
             // Atualizar conforme o passo atual
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const stepElement = document.getElementById(`step${i}`);
                 
                 if (i < stepNumber) {
@@ -844,12 +890,13 @@
             const now = new Date();
             const timeString = now.toLocaleTimeString('pt-BR', { 
                 hour: '2-digit', 
-                minute: '2-digit' 
+                minute: '2-digit',
+                second: '2-digit'
             });
             
             activityItem.innerHTML = `
                 <div class="activity-icon ${type}">
-                    <i class="fas fa-${type === 'received' ? 'comment-medical' : type === 'processing' ? 'cogs' : 'check'}"></i>
+                    <i class="fas fa-${type === 'received' ? 'file-import' : type === 'processing' ? 'cogs' : 'check'}"></i>
                 </div>
                 <div class="activity-details">
                     <h4>${title}</h4>
@@ -866,6 +913,17 @@
             errorText.textContent = message;
             errorMessage.classList.add('show');
             statusText.textContent = 'Erro: ' + message;
+            statusIndicator.className = 'status-indicator';
+        }
+        
+        // Resetar estado de processamento
+        function resetProcessingState() {
+            isProcessing = false;
+            processBtn.disabled = false;
+            processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Planilha';
+            processBtn.classList.remove('btn-success');
+            statusIndicator.className = 'status-indicator';
+            updateStep(1);
         }
         
         // Resetar seleção de arquivo
@@ -873,10 +931,13 @@
             currentFile = null;
             fileInfo.classList.remove('show');
             processBtn.disabled = true;
-            processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Proposta';
+            processBtn.innerHTML = '<i class="fas fa-cogs"></i> Processar Planilha';
             processBtn.classList.remove('btn-success');
+            downloadBtn.disabled = true;
             fileInput.value = '';
-            updateStep(2);
+            resultsPanel.classList.remove('show');
+            successMessage.classList.remove('show');
+            updateStep(1);
         }
         
         // Formatar tamanho do arquivo
@@ -890,32 +951,12 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
         
-        // Configurar abas
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tabId = btn.getAttribute('data-tab');
-                
-                // Remover classe ativa de todas as abas
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Adicionar classe ativa à aba clicada
-                btn.classList.add('active');
-                document.getElementById(`${tabId}-tab`).classList.add('active');
-            });
-        });
-        
         // Inicializar interface
-        updateStep(2);
+        updateStep(1);
+        statusIndicator.className = 'status-indicator';
         
-        // Adicionar exemplo de atividade para demonstração
-        setTimeout(() => {
-            addActivity('Webhook recebido', 'Documento XLSX recebido de Eduardo via WhatsApp', 'received');
-        }, 1000);
-        
-        setTimeout(() => {
-            addActivity('Verificação concluída', 'Arquivo XLSX validado com sucesso', 'completed');
-        }, 2000);
+        // Adicionar mensagem inicial de conexão
+        addActivity('Sistema inicializado', 'Interface conectada à API RAVI, aguardando upload de arquivo', 'completed');
     </script>
 </body>
 </html>
