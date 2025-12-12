@@ -4,104 +4,213 @@
     <meta charset="UTF-8">
     <title>Upload RAVI</title>
     <style>
-        body { font-family: Arial; padding: 20px; }
-        input, button { margin: 10px 0; padding: 10px; }
-        .url-input { width: 80%; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .upload-area {
+            border: 3px dashed #4A90E2;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            margin: 20px 0;
+            background: #f8faff;
+        }
+        .upload-area:hover {
+            background: #eef2ff;
+        }
+        button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #e7f7ef;
+            border: 1px solid #28a745;
+            display: block;
+        }
+        .error {
+            background: #ffeaea;
+            border: 1px solid #dc3545;
+            display: block;
+        }
+        .download-btn {
+            display: block;
+            background: #28a745;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h2>Enviar para RAVI</h2>
+    <h2>📤 Enviar Planilha RAVI</h2>
+    <p>Selecione um arquivo XLSX para processamento</p>
     
-    <div>
-        <p><strong>1. Primeiro, pegue uma URL pública do seu arquivo XLSX:</strong></p>
-        <p>• Use o <a href="https://wetransfer.com" target="_blank">WeTransfer</a> (gratuito, até 2GB)</p>
-        <p>• Ou <a href="https://drive.google.com" target="_blank">Google Drive</a> (compartilhe como "qualquer pessoa com o link")</p>
+    <div class="upload-area" id="uploadArea">
+        <div style="font-size: 48px;">📎</div>
+        <p><strong>Clique ou arraste o arquivo XLSX</strong></p>
+        <p style="color: #666; font-size: 14px;">Apenas arquivos .xlsx</p>
     </div>
     
-    <div>
-        <p><strong>2. Cole a URL pública aqui:</strong></p>
-        <input type="text" id="fileUrl" class="url-input" 
-               placeholder="https://exemplo.com/arquivo.xlsx">
-    </div>
+    <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
     
-    <div>
-        <p><strong>3. Enviar para processamento:</strong></p>
-        <button id="sendBtn">🚀 Processar Arquivo</button>
-    </div>
+    <div id="fileInfo" style="margin: 15px 0;"></div>
     
-    <div id="result" style="margin-top: 20px;"></div>
+    <button id="sendBtn" disabled>🚀 Processar Arquivo</button>
+    
+    <div class="result" id="result">
+        <div id="message"></div>
+        <a id="downloadLink" class="download-btn" target="_blank" style="display: none;">
+            ⬇️ Baixar Arquivo Processado
+        </a>
+    </div>
 
     <script>
-        document.getElementById('sendBtn').onclick = async function() {
-            const url = document.getElementById('fileUrl').value.trim();
-            const resultDiv = document.getElementById('result');
+        // Elementos
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const sendBtn = document.getElementById('sendBtn');
+        const result = document.getElementById('result');
+        const message = document.getElementById('message');
+        const downloadLink = document.getElementById('downloadLink');
+        
+        let currentFile = null;
+        
+        // Eventos de upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#eef2ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '#f8faff';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f8faff';
             
-            if (!url) {
-                resultDiv.innerHTML = '<p style="color: red;">❌ Cole uma URL primeiro</p>';
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Processar arquivo
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.xlsx')) {
+                showResult('❌ Apenas arquivos .xlsx são aceitos!', 'error');
                 return;
             }
             
-            if (!url.endsWith('.xlsx')) {
-                resultDiv.innerHTML = '<p style="color: red;">❌ URL deve terminar com .xlsx</p>';
-                return;
-            }
+            currentFile = file;
+            fileInfo.innerHTML = `<strong>📄 ${file.name}</strong> (${formatSize(file.size)})`;
+            sendBtn.disabled = false;
+            result.style.display = 'none';
+        }
+        
+        // Enviar para n8n
+        sendBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
             
-            this.disabled = true;
-            this.textContent = '⏳ Processando...';
-            resultDiv.innerHTML = '<p>📡 Enviando para n8n...</p>';
+            sendBtn.disabled = true;
+            sendBtn.textContent = '⏳ Processando...';
+            showResult('📤 Enviando arquivo...', '');
             
             try {
-                // ESTRUTURA EXATA que seu n8n espera
-                const payload = {
-                    lastMessage: {
-                        type: "DOCUMENT",
-                        text: "Processar via web",
-                        file: {
-                            publicUrl: url,
-                            extension: ".xlsx",
-                            mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            name: url.split('/').pop() || "arquivo.xlsx",
-                            size: 0  // Não sabemos o tamanho, mas o n8n usa
-                        }
-                    },
-                    sessionId: "web-" + Date.now(),
-                    contact: {
-                        name: "Usuário Web",
-                        phonenumber: "+551234567890"
-                    }
-                };
+                // Criar FormData com o arquivo
+                const formData = new FormData();
+                formData.append('file', currentFile);
                 
-                // Enviar para SEU webhook do n8n
+                // Enviar para o webhook do n8n
                 const response = await fetch('https://api.muvecom.com.br/v1/04a526a4-f33b-4dd4-88f8-ec95784f530a', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
+                    body: formData  // Envia o binário diretamente
                 });
                 
                 const data = await response.json();
                 
-                if (data.url_download || data.url) {
-                    const downloadUrl = data.url_download || data.url;
-                    resultDiv.innerHTML = `
-                        <p style="color: green;">✅ Processamento concluído!</p>
-                        <p><a href="${downloadUrl}" target="_blank" style="color: blue;">
-                            ⬇️ Clique aqui para baixar o arquivo processado
-                        </a></p>
-                        ${data.mensagem ? `<p>${data.mensagem}</p>` : ''}
-                    `;
+                // Verificar resposta
+                if (data.url || data.url_download) {
+                    const downloadUrl = data.url || data.url_download;
+                    
+                    // Mostrar sucesso
+                    let successMsg = '✅ Processamento concluído!';
+                    
+                    // Adicionar estatísticas se existirem
+                    if (data.modificadas !== undefined) {
+                        successMsg += `<br><small>${data.modificadas} valores atualizados`;
+                        if (data.total) successMsg += ` de ${data.total} linhas`;
+                        successMsg += '</small>';
+                    }
+                    
+                    if (data.mensagem) {
+                        successMsg += `<br><small>${data.mensagem}</small>`;
+                    }
+                    
+                    showResult(successMsg, 'success');
+                    
+                    // Configurar link de download
+                    downloadLink.href = downloadUrl;
+                    downloadLink.textContent = `⬇️ Baixar ${currentFile.name}`;
+                    downloadLink.style.display = 'block';
+                    
                 } else {
-                    resultDiv.innerHTML = `<p style="color: red;">❌ Resposta inesperada: ${JSON.stringify(data)}</p>`;
+                    showResult(`❌ Resposta inesperada: ${JSON.stringify(data)}`, 'error');
                 }
                 
             } catch (error) {
-                resultDiv.innerHTML = `<p style="color: red;">❌ Erro: ${error.message}</p>`;
+                showResult(`❌ Erro: ${error.message}`, 'error');
             } finally {
-                this.disabled = false;
-                this.textContent = '🚀 Processar Arquivo';
+                sendBtn.disabled = false;
+                sendBtn.textContent = '🚀 Processar Arquivo';
             }
-        };
+        });
+        
+        // Funções auxiliares
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showResult(msg, type) {
+            result.style.display = 'block';
+            result.className = 'result ' + (type || '');
+            message.innerHTML = msg;
+        }
     </script>
 </body>
 </html>
