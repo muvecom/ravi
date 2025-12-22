@@ -4,12 +4,57 @@
     <meta charset="UTF-8">
     <title>Upload RAVI</title>
     <style>
+        /* ===== FAIXA AMARELA NO TOPO ===== */
+        .faixa-versao {
+            background: linear-gradient(90deg, #FFD700, #FFEB3B, #FFD700);
+            color: #333;
+            text-align: center;
+            padding: 10px 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #FFC107;
+        }
+        
+        .faixa-versao .data-container {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 0 10px;
+        }
+        
+        .faixa-versao .data {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .faixa-versao .versao {
+            background: #FF6B00;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .faixa-versao .icone {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        /* ===== ESTILOS EXISTENTES ===== */
         body {
             font-family: Arial, sans-serif;
             max-width: 500px;
-            margin: 40px auto;
+            margin: 0 auto;
             padding: 20px;
         }
+        
         .upload-area {
             border: 3px dashed #4A90E2;
             border-radius: 10px;
@@ -19,9 +64,11 @@
             margin: 20px 0;
             background: #f8faff;
         }
+        
         .upload-area:hover {
             background: #eef2ff;
         }
+        
         button {
             background: #4A90E2;
             color: white;
@@ -32,26 +79,31 @@
             font-size: 16px;
             width: 100%;
         }
+        
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
+        
         .result {
             margin-top: 20px;
             padding: 15px;
             border-radius: 8px;
             display: none;
         }
+        
         .success {
             background: #e7f7ef;
             border: 1px solid #28a745;
             display: block;
         }
+        
         .error {
             background: #ffeaea;
             border: 1px solid #dc3545;
             display: block;
         }
+        
         .download-btn {
             display: block;
             background: #28a745;
@@ -65,6 +117,15 @@
     </style>
 </head>
 <body>
+    <!-- FAIXA AMARELA NO TOPO COM DATA -->
+    <div class="faixa-versao" id="faixaVersao">
+        <span class="icone">📅</span>
+        <span class="data-container">
+            <span class="data" id="dataAtual"></span>
+        </span>
+        <span class="versao" id="versaoAtual"></span>
+    </div>
+    
     <h2>📤 Enviar Planilha RAVI</h2>
     <p>Selecione um arquivo XLSX para processamento</p>
     
@@ -88,6 +149,39 @@
     </div>
 
     <script>
+        // ===== FUNÇÕES PARA A FAIXA =====
+        function formatarData(data) {
+            const dia = String(data.getDate()).padStart(2, '0');
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const ano = data.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+        
+        function determinarVersao(data) {
+            const dia = data.getDate();
+            const mes = data.getMonth() + 1;
+            const ano = data.getFullYear().toString().slice(-2);
+            
+            // Versão baseada no formato: vMM.DD.YY
+            return `v${mes}.${dia}.${ano}`;
+        }
+        
+        function atualizarFaixa() {
+            const dataAtual = new Date();
+            const dataFormatada = formatarData(dataAtual);
+            const versao = determinarVersao(dataAtual);
+            
+            document.getElementById('dataAtual').textContent = dataFormatada;
+            document.getElementById('versaoAtual').textContent = versao;
+            
+            // Atualizar título da página
+            document.title = `Upload RAVI - ${dataFormatada}`;
+        }
+        
+        // Inicializar faixa
+        atualizarFaixa();
+        
+        // ===== CÓDIGO EXISTENTE =====
         // Elementos
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
